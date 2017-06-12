@@ -1,5 +1,5 @@
 import React ,{PureComponent} from "react";
-import "./style.css";
+import styles from "./style.css";
 import {is,fromJS} from "immutable";
 
 class BDMap extends PureComponent{
@@ -10,7 +10,7 @@ class BDMap extends PureComponent{
         }
         this.searchText="";
         this.map=null;
-        this.src=`http://api.map.baidu.com/api?v=2.0&ak=${props.AK}`
+        this.src=`https://api.map.baidu.com/api?v=2.0&ak=${props.AK}`
     }
     loadBmap = () => {
           this.init();
@@ -26,23 +26,26 @@ class BDMap extends PureComponent{
 	}
     //添加标记
     addMarker = (coord) =>{
+
         const  point = new BMap.Point(coord.longitude,coord.latitude);
-        var marker = new BMap.Marker(point);
+        this.map.centerAndZoom(point, 16);
+        const marker = new BMap.Marker(point);
+        this.map.clearOverlays();
         this.map.addOverlay(marker);
+        marker.setAnimation(BMAP_ANIMATION_BOUNCE);
+
+
         if(this.props.showMarker){
             const content  = this.props.showMarker(coord);
             var infoWindow = new BMap.InfoWindow(content);
-            marker.addEventListener("click", function () { this.openInfoWindow(infoWindow); });
+            marker.addEventListener("click", function () { this.map.openInfoWindow(infoWindow,point); });
 
         }
     }
     //自动添加标记
    autoMap = (coords) => {
+       this.createMap();
        // 初始化地图,设置中心点坐标和地图级别，以最后一个坐标为基准
-        this.map.clearOverlays();
-        const lastCoord = coords[coords.length-1]
-        var lastPoint = new BMap.Point(lastCoord.longitude,lastCoord.latitude);
-        this.map.centerAndZoom(lastPoint, 16);
         coords.forEach(coord =>{
             this.addMarker(coord);
         })
@@ -60,12 +63,15 @@ class BDMap extends PureComponent{
         this.map.addControl(top_right_navigation);
     }
 //初始化
+  createMap = ()=>{
+      this.map = new BMap.Map("allmap");
+      this.addRulers();
+      this.addScroll();
+  }
    init = ()=>{
-       this.map = new BMap.Map("allmap");
+        this.createMap();
        if(this.props.coords.length>0){
             this.autoMap(this.props.coords)
-            this.addRulers();
-            this.addScroll();
         }else {
             //获取当前地址
             var geolocation = new BMap.Geolocation();
@@ -81,8 +87,6 @@ class BDMap extends PureComponent{
                     address:'暂无数据',
                 }];
                 this.autoMap(coords)
-                this.addRulers();
-                this.addScroll();
             });
         }
    }
@@ -105,6 +109,7 @@ class BDMap extends PureComponent{
         const prev = fromJS(this.props.coords)
         const next = fromJS(nextProps.coords);
         if(!is(prev,next)){
+            //  this.map = new BMap.Map("allmap");
             this.autoMap(nextProps.coords)
         }
     }
@@ -130,13 +135,13 @@ class BDMap extends PureComponent{
     }
 
     render(){
-        const {showSearch} = this.props;
+        const {showSearch,style} = this.props;
         return(
-            <div className="mapwrapper">
+            <div className={styles.mapwrapper} style={style}>
 
                 {showSearch&&this.props.children&&React.cloneElement(this.props.children,{onPressEnter:this.onSearchChange})}
 
-                <div id="allmap" className="mapwrapper">
+                <div id="allmap" className={styles.mapwrapper}>
 
                 </div>
             </div>
