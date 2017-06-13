@@ -1,5 +1,5 @@
 import React ,{PureComponent} from "react";
-import styles from "./style.css";
+import  "./styles/style.css";
 import {is,fromJS} from "immutable";
 
 class BDMap extends PureComponent{
@@ -65,13 +65,13 @@ class BDMap extends PureComponent{
 //初始化
   createMap = ()=>{
       this.map = new BMap.Map("allmap");
-      this.addRulers();
-      this.addScroll();
   }
    init = ()=>{
-        this.createMap();
+        // this.createMap();
        if(this.props.coords.length>0){
-            this.autoMap(this.props.coords)
+            this.autoMap(this.props.coords);
+            this.addRulers();
+            this.addScroll();
         }else {
             //获取当前地址
             var geolocation = new BMap.Geolocation();
@@ -86,7 +86,9 @@ class BDMap extends PureComponent{
                     tel:'暂无数据',
                     address:'暂无数据',
                 }];
-                this.autoMap(coords)
+                this.autoMap(coords);
+                this.addRulers();
+                this.addScroll();
             });
         }
    }
@@ -137,11 +139,11 @@ class BDMap extends PureComponent{
     render(){
         const {showSearch,style} = this.props;
         return(
-            <div className={styles.mapwrapper} style={style}>
+            <div className="mapwrapper" style={style}>
 
                 {showSearch&&this.props.children&&React.cloneElement(this.props.children,{onPressEnter:this.onSearchChange})}
 
-                <div id="allmap" className={styles.mapwrapper}>
+                <div id="allmap" className="mapwrapper">
 
                 </div>
             </div>

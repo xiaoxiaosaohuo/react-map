@@ -28,9 +28,7 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _style = require("./style.css");
-
-var _style2 = _interopRequireDefault(_style);
+require("./styles/style.css");
 
 var _immutable = require("immutable");
 
@@ -96,14 +94,13 @@ var BDMap = function (_PureComponent) {
 
         _this.createMap = function () {
             _this.map = new BMap.Map("allmap");
-            _this.addRulers();
-            _this.addScroll();
         };
 
         _this.init = function () {
-            _this.createMap();
             if (_this.props.coords.length > 0) {
                 _this.autoMap(_this.props.coords);
+                _this.addRulers();
+                _this.addScroll();
             } else {
                 var geolocation = new BMap.Geolocation();
 
@@ -118,6 +115,8 @@ var BDMap = function (_PureComponent) {
                         address: '暂无数据'
                     }];
                     _this.autoMap(coords);
+                    _this.addRulers();
+                    _this.addScroll();
                 });
             }
         };
@@ -184,9 +183,9 @@ var BDMap = function (_PureComponent) {
 
             return _react2.default.createElement(
                 "div",
-                { className: _style2.default.mapwrapper, style: style },
+                { className: "mapwrapper", style: style },
                 showSearch && this.props.children && _react2.default.cloneElement(this.props.children, { onPressEnter: this.onSearchChange }),
-                _react2.default.createElement("div", { id: "allmap", className: _style2.default.mapwrapper })
+                _react2.default.createElement("div", { id: "allmap", className: "mapwrapper" })
             );
         }
     }]);

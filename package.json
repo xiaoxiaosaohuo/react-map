@@ -1,13 +1,13 @@
 {
     "name": "react-map-bdmap",
-    "version": "1.0.2",
+    "version": "1.1.1",
     "description": "react map",
     "repository": "https://github.com/jinxin479/react-map",
-    "main": "lib/index.js",
+    "main": "./dist/index.js",
     "author": "苦瓜和尚",
     "license": "MIT",
     "scripts": {
-        "compile": "babel -d lib/ src/",
+        "compile": "rm -fr ./dist && babel --copy-files ./src --out-dir ./dist",
         "prepublish": "npm run compile"
     },
     "dependencies": {
