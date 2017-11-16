@@ -27,28 +27,37 @@ class BDMap extends PureComponent{
     //添加标记
     addMarker = (coord) =>{
 
-        const  point = new BMap.Point(coord.longitude,coord.latitude);
+        this.map.clearOverlays();
+        const  point = new BMap.Point(coord.lng,coord.lat);
         this.map.centerAndZoom(point, 16);
         const marker = new BMap.Marker(point);
-        this.map.clearOverlays();
-        this.map.addOverlay(marker);
-        marker.setAnimation(BMAP_ANIMATION_BOUNCE);
 
+        this.map.addOverlay(marker);
 
         if(this.props.showMarker){
             const content  = this.props.showMarker(coord);
             var infoWindow = new BMap.InfoWindow(content);
-            marker.addEventListener("click", function () { this.map.openInfoWindow(infoWindow,point); });
+            marker.addEventListener("click",  ()=> { this.map.openInfoWindow(infoWindow,point); });
 
         }
+
+        marker.enableDragging();
+        marker.addEventListener("dragend", (e)=>{
+            this.props.onDrag&&this.props.onDrag(e)
+        })
     }
     //自动添加标记
    autoMap = (coords) => {
        this.createMap();
        // 初始化地图,设置中心点坐标和地图级别，以最后一个坐标为基准
-        coords.forEach(coord =>{
-            this.addMarker(coord);
-        })
+       if(Array.isArray(coords)){
+           coords.forEach(coord =>{
+               this.addMarker(coord);
+           })
+       }else{
+           this.addMarker(coords);
+       }
+
     }
     //添加滚动
     addScroll = ()=>{
@@ -68,7 +77,7 @@ class BDMap extends PureComponent{
   }
    init = ()=>{
         // this.createMap();
-       if(this.props.coords.length>0){
+       if(this.props.coords){
             this.autoMap(this.props.coords);
             this.addRulers();
             this.addScroll();
@@ -79,14 +88,14 @@ class BDMap extends PureComponent{
             geolocation.getCurrentPosition((r) =>{
                 console.log('获取到当前地址',r);
                 const coords=[{
-                    latitude:"39.94746",
-                    longitude:"116.359764",
+                    lat:"39.94746",
+                    lng:"116.359764",
                     shopCount:'',
                     shopName:'暂无数据',
                     tel:'暂无数据',
                     address:'暂无数据',
                 }];
-                this.autoMap(coords);
+                this.autoMap(r.point);
                 this.addRulers();
                 this.addScroll();
             });
@@ -123,17 +132,33 @@ class BDMap extends PureComponent{
         }
         this.setPlace(this.searchText)
     }
+   
+    onBlur = (value)=>{
+        if(!value){
+            return false
+        }
+        this.setPlace(value)
+    }
+
     //设置位置
     setPlace = (myValue)=>{
-        this.map.clearOverlays();    //清除地图上所有覆盖物
         const localSearch = new BMap.LocalSearch(this.map);
         localSearch.search(myValue);
-         localSearch.setSearchCompleteCallback((searchResult) => {
-            const point = searchResult.getPoi(0).point;
-            this.map.centerAndZoom(point, 16);
-            var marker = new BMap.Marker(point);
-            this.map.addOverlay(marker);
-         })
+        if(this.props.getPoint&& typeof this.props.getPoint === 'function' ){
+            this.props.getPoint(new Promise((resolve, reject)=>{
+                localSearch.setSearchCompleteCallback((searchResult) => {
+                   const point = searchResult.getPoi(0).point;
+                   this.addMarker(point)
+                   resolve(point)
+
+                })
+            }))
+        }else{
+            localSearch.setSearchCompleteCallback((searchResult) => {
+               const point = searchResult.getPoi(0).point;
+               this.addMarker(point)
+            })
+        }
     }
 
     render(){
@@ -141,7 +166,7 @@ class BDMap extends PureComponent{
         return(
             <div className="mapwrapper" style={style}>
 
-                {showSearch&&this.props.children&&React.cloneElement(this.props.children,{onPressEnter:this.onSearchChange})}
+                {showSearch&&this.props.children&&React.cloneElement(this.props.children,{onPressEnter:this.onSearchChange,onBlur:this.onBlur})}
 
                 <div id="allmap" className="mapwrapper">
 

@@ -57,28 +57,37 @@ var BDMap = function (_PureComponent) {
 
         _this.addMarker = function (coord) {
 
-            var point = new BMap.Point(coord.longitude, coord.latitude);
+            _this.map.clearOverlays();
+            var point = new BMap.Point(coord.lng, coord.lat);
             _this.map.centerAndZoom(point, 16);
             var marker = new BMap.Marker(point);
-            _this.map.clearOverlays();
+
             _this.map.addOverlay(marker);
-            marker.setAnimation(BMAP_ANIMATION_BOUNCE);
 
             if (_this.props.showMarker) {
                 var content = _this.props.showMarker(coord);
                 var infoWindow = new BMap.InfoWindow(content);
                 marker.addEventListener("click", function () {
-                    this.map.openInfoWindow(infoWindow, point);
+                    _this.map.openInfoWindow(infoWindow, point);
                 });
             }
+
+            marker.enableDragging();
+            marker.addEventListener("dragend", function (e) {
+                _this.props.onDrag && _this.props.onDrag(e);
+            });
         };
 
         _this.autoMap = function (coords) {
             _this.createMap();
 
-            coords.forEach(function (coord) {
-                _this.addMarker(coord);
-            });
+            if (Array.isArray(coords)) {
+                coords.forEach(function (coord) {
+                    _this.addMarker(coord);
+                });
+            } else {
+                _this.addMarker(coords);
+            }
         };
 
         _this.addScroll = function () {
@@ -97,7 +106,7 @@ var BDMap = function (_PureComponent) {
         };
 
         _this.init = function () {
-            if (_this.props.coords.length > 0) {
+            if (_this.props.coords) {
                 _this.autoMap(_this.props.coords);
                 _this.addRulers();
                 _this.addScroll();
@@ -107,14 +116,14 @@ var BDMap = function (_PureComponent) {
                 geolocation.getCurrentPosition(function (r) {
                     console.log('获取到当前地址', r);
                     var coords = [{
-                        latitude: "39.94746",
-                        longitude: "116.359764",
+                        lat: "39.94746",
+                        lng: "116.359764",
                         shopCount: '',
                         shopName: '暂无数据',
                         tel: '暂无数据',
                         address: '暂无数据'
                     }];
-                    _this.autoMap(coords);
+                    _this.autoMap(r.point);
                     _this.addRulers();
                     _this.addScroll();
                 });
@@ -139,15 +148,20 @@ var BDMap = function (_PureComponent) {
             _this.setPlace(_this.searchText);
         };
 
+        _this.onBlur = function (value) {
+            if (!value) {
+                return false;
+            }
+            _this.setPlace(value);
+        };
+
         _this.setPlace = function (myValue) {
-            _this.map.clearOverlays();
             var localSearch = new BMap.LocalSearch(_this.map);
             localSearch.search(myValue);
             localSearch.setSearchCompleteCallback(function (searchResult) {
                 var point = searchResult.getPoi(0).point;
-                _this.map.centerAndZoom(point, 16);
-                var marker = new BMap.Marker(point);
-                _this.map.addOverlay(marker);
+                _this.addMarker(point);
+                _this.props.getPoint && _this.props.getPoint(point);
             });
         };
 
@@ -184,7 +198,7 @@ var BDMap = function (_PureComponent) {
             return _react2.default.createElement(
                 "div",
                 { className: "mapwrapper", style: style },
-                showSearch && this.props.children && _react2.default.cloneElement(this.props.children, { onPressEnter: this.onSearchChange }),
+                showSearch && this.props.children && _react2.default.cloneElement(this.props.children, { onPressEnter: this.onSearchChange, onBlur: this.onBlur }),
                 _react2.default.createElement("div", { id: "allmap", className: "mapwrapper" })
             );
         }
