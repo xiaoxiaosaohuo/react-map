@@ -106,7 +106,9 @@ var BDMap = function (_PureComponent) {
         };
 
         _this.createMap = function () {
-            _this.map = new BMap.Map("allmap");
+            var id = _this.props.id;
+
+            _this.map = new BMap.Map(id);
         };
 
         _this.init = function () {
@@ -206,13 +208,15 @@ var BDMap = function (_PureComponent) {
         value: function render() {
             var _props = this.props,
                 showSearch = _props.showSearch,
-                style = _props.style;
+                style = _props.style,
+                _props$id = _props.id,
+                id = _props$id === undefined ? 'allmap' : _props$id;
 
             return _react2.default.createElement(
                 "div",
                 { className: "mapwrapper", style: style },
                 showSearch && this.props.children && _react2.default.cloneElement(this.props.children, { onPressEnter: this.onSearchChange, onBlur: this.onBlur }),
-                _react2.default.createElement("div", { id: "allmap", className: "mapwrapper" })
+                _react2.default.createElement("div", { id: id, className: "mapwrapper" })
             );
         }
     }]);

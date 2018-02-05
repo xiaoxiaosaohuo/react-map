@@ -163,7 +163,7 @@ class BDMap extends PureComponent{
     }
 
     render(){
-        const {showSearch,style,id= 'allmap'} this.props;
+        const {showSearch,style,id= 'allmap'} =  this.props;
         return(
             <div className="mapwrapper" style={style}>
 
