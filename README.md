@@ -10,12 +10,15 @@ npm install react-map-bdmap --save
 ## API
 
 
-属性| 描述 | 类型
----|--- | ---
-AK |秘钥 |无
-coords | 坐标|  array
-showSearch | 是否展示搜索功能 | false
-showMarker | 展示提示信息 |function
+属性| 描述 | 类型 | 默认值
+---|--- | --- | ---
+AK |秘钥 |string | 无
+coords | 坐标|  array | []
+showSearch | 是否展示搜索功能 | bool | false
+showMarker | 展示提示信息 |function | 无
+onDrag | 拖动回调 监听dragend事件|  func | 无
+getPoint | 手动设置位置后获取新位置的坐标，返回promise | func | 无
+id | 地图实例id 默认"allmap" | string
 
 
 # usage
@@ -27,10 +30,7 @@ showMarker | 展示提示信息 |function
 
  <BDMap
     AK={mapAK}
-    showMarker={showMarker}
     coords={coords}
-    showSearch={true}
 >
-    <Input placeholder="请输入地址" ></Input>
 </BDMap>
 ```
