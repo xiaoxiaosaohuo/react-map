@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _promise = require("babel-runtime/core-js/promise");
+
+var _promise2 = _interopRequireDefault(_promise);
+
 var _getPrototypeOf = require("babel-runtime/core-js/object/get-prototype-of");
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
@@ -158,11 +162,20 @@ var BDMap = function (_PureComponent) {
         _this.setPlace = function (myValue) {
             var localSearch = new BMap.LocalSearch(_this.map);
             localSearch.search(myValue);
-            localSearch.setSearchCompleteCallback(function (searchResult) {
-                var point = searchResult.getPoi(0).point;
-                _this.addMarker(point);
-                _this.props.getPoint && _this.props.getPoint(point);
-            });
+            if (_this.props.getPoint && typeof _this.props.getPoint === 'function') {
+                _this.props.getPoint(new _promise2.default(function (resolve, reject) {
+                    localSearch.setSearchCompleteCallback(function (searchResult) {
+                        var point = searchResult.getPoi(0).point;
+                        _this.addMarker(point);
+                        resolve(point);
+                    });
+                }));
+            } else {
+                localSearch.setSearchCompleteCallback(function (searchResult) {
+                    var point = searchResult.getPoi(0).point;
+                    _this.addMarker(point);
+                });
+            }
         };
 
         _this.state = {

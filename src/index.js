@@ -73,7 +73,8 @@ class BDMap extends PureComponent{
     }
 //初始化
   createMap = ()=>{
-      this.map = new BMap.Map("allmap");
+      const {id} = this.props;
+      this.map = new BMap.Map(id);
   }
    init = ()=>{
         // this.createMap();
@@ -132,7 +133,7 @@ class BDMap extends PureComponent{
         }
         this.setPlace(this.searchText)
     }
-   
+
     onBlur = (value)=>{
         if(!value){
             return false
@@ -162,13 +163,13 @@ class BDMap extends PureComponent{
     }
 
     render(){
-        const {showSearch,style} = this.props;
+        const {showSearch,style,id= 'allmap'} this.props;
         return(
             <div className="mapwrapper" style={style}>
 
                 {showSearch&&this.props.children&&React.cloneElement(this.props.children,{onPressEnter:this.onSearchChange,onBlur:this.onBlur})}
 
-                <div id="allmap" className="mapwrapper">
+                <div id={id} className="mapwrapper">
 
                 </div>
             </div>
