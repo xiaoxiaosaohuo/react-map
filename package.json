@@ -1,6 +1,6 @@
 {
     "name": "react-map-bdmap",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "react map",
     "repository": "https://github.com/jinxin479/react-map",
     "main": "./dist/index.js",
