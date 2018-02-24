@@ -32,11 +32,17 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-require("./styles/style.css");
-
 var _immutable = require("immutable");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var isString = function isString(str) {
+    return Object.prototype.toString.call(str) === "[object String]";
+};
+var style = {
+    height: '100%',
+    position: 'relative'
+};
 
 var BDMap = function (_PureComponent) {
     (0, _inherits3.default)(BDMap, _PureComponent);
@@ -46,52 +52,55 @@ var BDMap = function (_PureComponent) {
 
         var _this = (0, _possibleConstructorReturn3.default)(this, (BDMap.__proto__ || (0, _getPrototypeOf2.default)(BDMap)).call(this, props));
 
-        _this.loadBmap = function () {
-            _this.init();
-            window.mapOnLoad = null;
-        };
-
         _this.loadJScript = function () {
-            window.mapOnLoad = _this.loadBmap;
-            var script = document.createElement("script");
-            script.type = "text/javascript";
-            script.src = _this.src + "&callback=mapOnLoad";
-            document.body.appendChild(script);
-        };
-
-        _this.addMarker = function (coord) {
-
-            _this.map.clearOverlays();
-            var point = new BMap.Point(coord.lng, coord.lat);
-            _this.map.centerAndZoom(point, 16);
-            var marker = new BMap.Marker(point);
-
-            _this.map.addOverlay(marker);
-
-            if (_this.props.showMarker) {
-                var content = _this.props.showMarker(coord);
-                var infoWindow = new BMap.InfoWindow(content);
-                marker.addEventListener("click", function () {
-                    _this.map.openInfoWindow(infoWindow, point);
-                });
-            }
-
-            marker.enableDragging();
-            marker.addEventListener("dragend", function (e) {
-                _this.props.onDrag && _this.props.onDrag(e);
-            });
-        };
-
-        _this.autoMap = function (coords) {
-            _this.createMap();
-
-            if (Array.isArray(coords)) {
-                coords.forEach(function (coord) {
-                    _this.addMarker(coord);
-                });
+            if (typeof BMap != 'undefined') {
+                return;
             } else {
-                _this.addMarker(coords);
+                var bmapSrc = "https://api.map.baidu.com/api?v=2.0&ak=" + _this.props.AK + "&callback=init";
+                var script = document.querySelector("script[src='" + bmapSrc + "']");
+                if (!script) {
+                    script = document.createElement("script");
+                    script.src = bmapSrc;
+                    document.body.appendChild(script);
+                }
             }
+        };
+
+        _this.init = function () {
+            var _this$props = _this.props,
+                showMarker = _this$props.showMarker,
+                coords = _this$props.coords;
+
+            _this.autoMap();
+            if (showMarker) {
+                if (Array.isArray(coords)) {
+                    coords.forEach(function (coord) {
+                        _this.addMarker(coord);
+                    });
+                } else {
+                    _this.addMarker(coords);
+                }
+            }
+
+            _this.addScroll();
+        };
+
+        _this.autoMap = function () {
+            var _this$props2 = _this.props,
+                coords = _this$props2.coords,
+                center = _this$props2.center;
+
+            var centerPoint = null;
+            if (Array.isArray(coords)) {
+                centerPoint = new BMap.Point(coords[0].lng, coords[0].lat);
+            } else {
+                centerPoint = new BMap.Point(coords.lng, coords.lat);
+            }
+            if (!centerPoint) {
+                centerPoint = new BMap.Point(center.lng, center.lat);
+            }
+
+            _this.map.centerAndZoom(centerPoint, 16);
         };
 
         _this.addScroll = function () {
@@ -105,35 +114,27 @@ var BDMap = function (_PureComponent) {
             _this.map.addControl(top_right_navigation);
         };
 
-        _this.createMap = function () {
-            var id = _this.props.id;
+        _this.addMarker = function (coord) {
 
-            _this.map = new BMap.Map(id);
-        };
+            _this.map.clearOverlays();
+            var point = new BMap.Point(coord.lng, coord.lat);
 
-        _this.init = function () {
-            if (_this.props.coords) {
-                _this.autoMap(_this.props.coords);
-                _this.addRulers();
-                _this.addScroll();
-            } else {
-                var geolocation = new BMap.Geolocation();
+            var marker = new BMap.Marker(point);
 
-                geolocation.getCurrentPosition(function (r) {
-                    console.log('获取到当前地址', r);
-                    var coords = [{
-                        lat: "39.94746",
-                        lng: "116.359764",
-                        shopCount: '',
-                        shopName: '暂无数据',
-                        tel: '暂无数据',
-                        address: '暂无数据'
-                    }];
-                    _this.autoMap(r.point);
-                    _this.addRulers();
-                    _this.addScroll();
+            _this.map.addOverlay(marker);
+
+            if (_this.props.showInfoWindow) {
+                var content = _this.props.showInfoWindow(coord);
+                var infoWindow = new BMap.InfoWindow(content);
+                marker.addEventListener("click", function () {
+                    _this.map.openInfoWindow(infoWindow, point);
                 });
             }
+
+            marker.enableDragging();
+            marker.addEventListener("dragend", function (e) {
+                _this.props.onDrag && _this.props.onDrag(e);
+            });
         };
 
         _this.deletePoint = function () {
@@ -146,46 +147,25 @@ var BDMap = function (_PureComponent) {
             }
         };
 
-        _this.onSearchChange = function (e) {
-            _this.searchText = e.target.value;
-            if (!e.target.value) {
-                return false;
-            }
-            _this.setPlace(_this.searchText);
-        };
-
-        _this.onBlur = function (value) {
-            if (!value) {
-                return false;
-            }
-            _this.setPlace(value);
-        };
-
         _this.setPlace = function (myValue) {
             var localSearch = new BMap.LocalSearch(_this.map);
             localSearch.search(myValue);
-            if (_this.props.getPoint && typeof _this.props.getPoint === 'function') {
-                _this.props.getPoint(new _promise2.default(function (resolve, reject) {
-                    localSearch.setSearchCompleteCallback(function (searchResult) {
-                        var point = searchResult.getPoi(0).point;
-                        _this.addMarker(point);
-                        resolve(point);
-                    });
-                }));
-            } else {
+            return new _promise2.default(function (resolve, reject) {
                 localSearch.setSearchCompleteCallback(function (searchResult) {
                     var point = searchResult.getPoi(0).point;
+                    _this.map.centerAndZoom(point, 16);
                     _this.addMarker(point);
+                    resolve(point);
                 });
-            }
+            });
         };
 
         _this.state = {
             loaded: !!window.BMap
         };
-        _this.searchText = "";
         _this.map = null;
         _this.src = "https://api.map.baidu.com/api?v=2.0&ak=" + props.AK;
+        _this.mapId = props.id;
         return _this;
     }
 
@@ -195,28 +175,57 @@ var BDMap = function (_PureComponent) {
             this.loadJScript();
         }
     }, {
+        key: "componentDidMount",
+        value: function componentDidMount() {
+            var _this2 = this;
+
+            var timeoutPromise = function timeoutPromise(timeout) {
+                return new _promise2.default(function (resolve, reject) {
+                    setTimeout(function () {
+                        resolve();
+                    }, timeout);
+                });
+            };
+            var waitUntil = function waitUntil(props) {
+                return new _promise2.default(function (resolve, reject) {
+                    var map = new BMap.Map(props.id);
+                    resolve(map);
+                }).catch(function (err) {
+                    console.log("there's no BMap yet. Waitting ...", err);
+                    return timeoutPromise(300).then(function () {
+                        return waitUntil(props);
+                    });
+                });
+            };
+            waitUntil(this.props).then(function (map) {
+                console.log("[+] bmap loaded", map);
+                _this2.map = map;
+                _this2.init();
+                _this2.forceUpdate();
+
+                _this2.props.callback && _this2.props.callback(map);
+            });
+        }
+    }, {
         key: "componentWillReceiveProps",
         value: function componentWillReceiveProps(nextProps) {
-            var prev = (0, _immutable.fromJS)(this.props.coords);
-            var next = (0, _immutable.fromJS)(nextProps.coords);
+            var prev = (0, _immutable.fromJS)(this.props);
+            var next = (0, _immutable.fromJS)(nextProps);
             if (!(0, _immutable.is)(prev, next)) {
-                this.autoMap(nextProps.coords);
+                this.autoMap();
             }
         }
     }, {
         key: "render",
         value: function render() {
-            var _props = this.props,
-                showSearch = _props.showSearch,
-                style = _props.style,
-                _props$id = _props.id,
-                id = _props$id === undefined ? 'allmap' : _props$id;
+            for (var key in this.props.style) {
+                style[key] = this.props.style[key];
+            }
 
             return _react2.default.createElement(
                 "div",
-                { className: "mapwrapper", style: style },
-                showSearch && this.props.children && _react2.default.cloneElement(this.props.children, { onPressEnter: this.onSearchChange, onBlur: this.onBlur }),
-                _react2.default.createElement("div", { id: id, className: "mapwrapper" })
+                { style: style },
+                _react2.default.createElement("div", { id: this.mapId, style: { height: "100%" }, ref: "map" })
             );
         }
     }]);
@@ -224,7 +233,9 @@ var BDMap = function (_PureComponent) {
 }(_react.PureComponent);
 
 BDMap.defaultProps = {
-    coords: [],
-    showSearch: false
+    center: {
+        lat: "39.94746",
+        lng: "116.359764"
+    }
 };
 exports.default = BDMap;

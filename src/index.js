@@ -16,7 +16,7 @@ class BDMap extends PureComponent {
         }
         this.map = null;
         this.src = `https://api.map.baidu.com/api?v=2.0&ak=${props.AK}`;
-        this.mapId = props.id;
+        this.mapId = props.id||"allmap";
     }
     //加载baidumap script
     loadJScript = () => {
