@@ -165,7 +165,7 @@ var BDMap = function (_PureComponent) {
         };
         _this.map = null;
         _this.src = "https://api.map.baidu.com/api?v=2.0&ak=" + props.AK;
-        _this.mapId = props.id;
+        _this.mapId = props.id || "allmap";
         return _this;
     }
 
