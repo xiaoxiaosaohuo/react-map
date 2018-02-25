@@ -30,9 +30,73 @@ id | 地图实例id 默认"allmap" | string
  import  BDMap from "react-map-bdmap";
  const mapAK = "xxxx";//秘钥
 
- <BDMap
-    AK={mapAK}
-    coords={coords}
->
-</BDMap>
+  class MyPage extends PureComponent{
+    constructor(props){
+        super(props);
+    }
+    
+    componentDidMount(){
+        console.log(this.map)
+    }
+    onPressEnter = (e)=>{
+        this.map.setPlace(e.target.value)
+        .then((point)=>{
+            console.log(point);
+            
+        })
+        
+    }
+    showInfoWindow = (point)=>{
+        return `<div>
+                <span>看到积分了</span>
+            </div>
+        `
+    }
+    onDrag = (e)=>{
+        console.log(e.point);
+    }
+    render(){
+        return(
+
+        <div style={{height:4000}}>
+            <ScrollNotice dataSource={data}  duration={3} />
+            <Input onPressEnter={this.onPressEnter}>
+            </Input>
+            <Map
+                AK={mapAK}
+                id="jiarui"
+                coords={[{
+                    lat: "39.94746",
+                    lng: "116.359764",}]}
+                style={{ height: 400 }}
+                showMarker
+                showInfoWindow={this.showInfoWindow}
+                ref={(ref)=>this.map=ref}
+            >
+                
+            </Map>
+            <div style={{margin:"40px"}}>
+                <Map
+                    AK={mapAK}
+                    id="jinxin"
+                    coords={[{
+                        lat: "40.94746",
+                        lng: "116.359764",
+                    }]}
+                    showMarker
+                    style={{ height: 400 }}
+                >
+                    
+                </Map>
+                </div>
+            
+        </div>
+
+
+
+    )
+    }
+}
+
+export default MyPage;
 ```
