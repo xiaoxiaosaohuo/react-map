@@ -59,7 +59,7 @@ id | 地图实例id 默认"allmap" | string
         return(
 
         <div style={{height:4000}}>
-            <ScrollNotice dataSource={data}  duration={3} />
+            
             <Input onPressEnter={this.onPressEnter}>
             </Input>
             <Map
