@@ -64,7 +64,7 @@ id | 地图实例id 默认"allmap" | string
             </Input>
             <Map
                 AK={mapAK}
-                id="jiarui"
+                id="shuaige"
                 coords={[{
                     lat: "39.94746",
                     lng: "116.359764",}]}
