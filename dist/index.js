@@ -188,7 +188,7 @@ var BDMap = function (_PureComponent) {
             };
             var waitUntil = function waitUntil(props) {
                 return new _promise2.default(function (resolve, reject) {
-                    var map = new BMap.Map(this.mapId);
+                    var map = new BMap.Map(_this2.mapId);
                     resolve(map);
                 }).catch(function (err) {
                     console.log("there's no BMap yet. Waitting ...", err);

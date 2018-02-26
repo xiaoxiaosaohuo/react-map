@@ -123,14 +123,14 @@ class BDMap extends PureComponent {
     }
     componentDidMount() {
         const timeoutPromise = (timeout) => {
-            return new Promise(function (resolve, reject) {
-                setTimeout(function () {
+            return new Promise((resolve, reject)=> {
+                setTimeout(() =>{
                     resolve();
                 }, timeout);
             });
         }
         const waitUntil = (props) => {
-            return new Promise(function (resolve, reject) {
+            return new Promise((resolve, reject)=> {
                 const map = new BMap.Map(this.mapId);
                 resolve(map);
             }).catch(err => {
