@@ -141,7 +141,7 @@ class BDMap extends PureComponent {
             });
         }
         waitUntil(this.props).then(map => {
-            console.log(`[+] bmap loaded`, map);
+            // console.log(`[+] bmap loaded`, map);
             this.map = map
             this.init();
             this.forceUpdate();
@@ -184,7 +184,7 @@ class BDMap extends PureComponent {
 
         return (
             <div style={style}>
-            
+
                 <div id={this.mapId} style={{ height: "100%" }} ref='map'>
 
                 </div>
