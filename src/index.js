@@ -131,7 +131,7 @@ class BDMap extends PureComponent {
         }
         const waitUntil = (props) => {
             return new Promise(function (resolve, reject) {
-                const map = new BMap.Map(props.id);
+                const map = new BMap.Map(this.mapId);
                 resolve(map);
             }).catch(err => {
                 console.log("there's no BMap yet. Waitting ...", err);
