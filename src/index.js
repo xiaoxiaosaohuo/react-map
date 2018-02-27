@@ -35,9 +35,9 @@ class BDMap extends PureComponent {
     }
     //初始化
 
-    init = () => {
-        const { showMarker, coords } = this.props;
-        this.autoMap();
+    init = (coords) => {
+        const { showMarker } = this.props;
+        this.autoMap(coords);
         if (showMarker) {
             if (Array.isArray(coords)) {
                 coords.forEach(coord => {
@@ -54,8 +54,8 @@ class BDMap extends PureComponent {
     }
 
     //自动添加标记
-    autoMap = () => {
-        const { coords, center } = this.props;
+    autoMap = (coords) => {
+        const { center } = this.props;
         let centerPoint = null;
         if (Array.isArray(coords)) {
             centerPoint = new BMap.Point(coords[0].lng, coords[0].lat);
@@ -143,7 +143,7 @@ class BDMap extends PureComponent {
         waitUntil(this.props).then(map => {
             // console.log(`[+] bmap loaded`, map);
             this.map = map
-            this.init();
+            this.init(this.props.coords);
             this.forceUpdate();
 
             this.props.callback && this.props.callback(map);
@@ -152,10 +152,10 @@ class BDMap extends PureComponent {
 
 
     componentWillReceiveProps(nextProps) {
-        const prev = fromJS(this.props)
-        const next = fromJS(nextProps);
+        const prev = fromJS(this.props.coords)
+        const next = fromJS(nextProps.coords);
         if (!is(prev, next)) {
-            this.autoMap()
+            this.init(nextProps.coords)
         }
     }
 

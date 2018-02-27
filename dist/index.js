@@ -66,12 +66,10 @@ var BDMap = function (_PureComponent) {
             }
         };
 
-        _this.init = function () {
-            var _this$props = _this.props,
-                showMarker = _this$props.showMarker,
-                coords = _this$props.coords;
+        _this.init = function (coords) {
+            var showMarker = _this.props.showMarker;
 
-            _this.autoMap();
+            _this.autoMap(coords);
             if (showMarker) {
                 if (Array.isArray(coords)) {
                     coords.forEach(function (coord) {
@@ -85,10 +83,8 @@ var BDMap = function (_PureComponent) {
             _this.addScroll();
         };
 
-        _this.autoMap = function () {
-            var _this$props2 = _this.props,
-                coords = _this$props2.coords,
-                center = _this$props2.center;
+        _this.autoMap = function (coords) {
+            var center = _this.props.center;
 
             var centerPoint = null;
             if (Array.isArray(coords)) {
@@ -199,7 +195,7 @@ var BDMap = function (_PureComponent) {
             };
             waitUntil(this.props).then(function (map) {
                 _this2.map = map;
-                _this2.init();
+                _this2.init(_this2.props.coords);
                 _this2.forceUpdate();
 
                 _this2.props.callback && _this2.props.callback(map);
@@ -208,10 +204,10 @@ var BDMap = function (_PureComponent) {
     }, {
         key: "componentWillReceiveProps",
         value: function componentWillReceiveProps(nextProps) {
-            var prev = (0, _immutable.fromJS)(this.props);
-            var next = (0, _immutable.fromJS)(nextProps);
+            var prev = (0, _immutable.fromJS)(this.props.coords);
+            var next = (0, _immutable.fromJS)(nextProps.coords);
             if (!(0, _immutable.is)(prev, next)) {
-                this.autoMap();
+                this.init(nextProps.coords);
             }
         }
     }, {
