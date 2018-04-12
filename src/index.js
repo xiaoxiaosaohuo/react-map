@@ -4,10 +4,7 @@ import { is, fromJS } from "immutable";
 const isString = function (str) {
     return Object.prototype.toString.call(str) === "[object String]";
 };
-let style = {
-    height: '100%',
-    position: 'relative'
-};
+
 class BDMap extends PureComponent {
     constructor(props) {
         super(props);
@@ -178,12 +175,15 @@ class BDMap extends PureComponent {
     }
 
     render() {
-        for (let key in this.props.style) {
-            style[key] = this.props.style[key];
-        }
+        const styleA = {
+            height: 500,
+            position: 'relative'
+        };
+        const styleB = Object.assign({}, styleA, this.props.style)
+
 
         return (
-            <div style={style}>
+            <div style={styleB}>
 
                 <div id={this.mapId} style={{ height: "100%" }} >
 
@@ -199,6 +199,7 @@ BDMap.defaultProps = {
     center: {
         lat: "39.94746",
         lng: "116.359764",
-    }
+    },
+    style: {}
 }
 export default BDMap

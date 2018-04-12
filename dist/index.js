@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _assign = require("babel-runtime/core-js/object/assign");
+
+var _assign2 = _interopRequireDefault(_assign);
+
 var _promise = require("babel-runtime/core-js/promise");
 
 var _promise2 = _interopRequireDefault(_promise);
@@ -38,10 +42,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var isString = function isString(str) {
     return Object.prototype.toString.call(str) === "[object String]";
-};
-var style = {
-    height: '100%',
-    position: 'relative'
 };
 
 var BDMap = function (_PureComponent) {
@@ -213,13 +213,15 @@ var BDMap = function (_PureComponent) {
     }, {
         key: "render",
         value: function render() {
-            for (var key in this.props.style) {
-                style[key] = this.props.style[key];
-            }
+            var styleA = {
+                height: 500,
+                position: 'relative'
+            };
+            var styleB = (0, _assign2.default)({}, styleA, this.props.style);
 
             return _react2.default.createElement(
                 "div",
-                { style: style },
+                { style: styleB },
                 _react2.default.createElement("div", { id: this.mapId, style: { height: "100%" } })
             );
         }
@@ -231,6 +233,7 @@ BDMap.defaultProps = {
     center: {
         lat: "39.94746",
         lng: "116.359764"
-    }
+    },
+    style: {}
 };
 exports.default = BDMap;
