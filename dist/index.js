@@ -220,7 +220,7 @@ var BDMap = function (_PureComponent) {
             return _react2.default.createElement(
                 "div",
                 { style: style },
-                _react2.default.createElement("div", { id: this.mapId, style: { height: "100%" }, ref: "map" })
+                _react2.default.createElement("div", { id: this.mapId, style: { height: "100%" } })
             );
         }
     }]);
