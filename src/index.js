@@ -16,7 +16,7 @@ class BDMap extends PureComponent {
         }
         this.map = null;
         this.src = `https://api.map.baidu.com/api?v=2.0&ak=${props.AK}`;
-        this.mapId = props.id||"allmap";
+        this.mapId = props.id || "allmap";
     }
     //加载baidumap script
     loadJScript = () => {
@@ -123,14 +123,14 @@ class BDMap extends PureComponent {
     }
     componentDidMount() {
         const timeoutPromise = (timeout) => {
-            return new Promise((resolve, reject)=> {
-                setTimeout(() =>{
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
                     resolve();
                 }, timeout);
             });
         }
         const waitUntil = (props) => {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 const map = new BMap.Map(this.mapId);
                 resolve(map);
             }).catch(err => {
@@ -185,7 +185,7 @@ class BDMap extends PureComponent {
         return (
             <div style={style}>
 
-                <div id={this.mapId} style={{ height: "100%" }} ref='map'>
+                <div id={this.mapId} style={{ height: "100%" }} >
 
                 </div>
 
