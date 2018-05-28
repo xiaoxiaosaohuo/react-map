@@ -56,7 +56,7 @@ var BDMap = function (_PureComponent) {
             if (typeof BMap != 'undefined') {
                 return;
             } else {
-                var bmapSrc = "https://api.map.baidu.com/api?v=2.0&ak=" + _this.props.AK + "&callback=init";
+                var bmapSrc = "https://api.map.baidu.com/api?v=3.0&ak=" + _this.props.AK + "&callback=init";
                 var script = document.querySelector("script[src='" + bmapSrc + "']");
                 if (!script) {
                     script = document.createElement("script");
@@ -143,6 +143,10 @@ var BDMap = function (_PureComponent) {
             }
         };
 
+        _this.getCurrentPoint = function () {
+            return _this.currentPoint;
+        };
+
         _this.setPlace = function (myValue) {
             var localSearch = new BMap.LocalSearch(_this.map);
             localSearch.search(myValue);
@@ -156,12 +160,45 @@ var BDMap = function (_PureComponent) {
             });
         };
 
+        _this.analysis = function (pt, city) {
+            var geoc = new BMap.Geocoder();
+            geoc.getLocation(new BMap.Point(pt.lng, pt.lat), function (res) {
+                _this.map.clearOverlays();
+                geoc.getPoint(res.address, function (pt) {
+                    var point = new BMap.Point(pt.lng, pt.lat);
+                    var marker = new BMap.Marker(point);
+                    _this.currentPoint = pt;
+                    _this.map.centerAndZoom(point, 12);
+                    _this.map.panTo(point);
+                    _this.map.addOverlay(marker);
+                    var templ = "<div class=\"iploc-inf\"> \n                    <div class=\"ipLocTitle\">\n                        <span class=\"normal\">\n                            \u6211\u5728\n                        </span>\n                        <strong>\n                            " + res.address + " \n                         </strong>\n                         <span class=\"normal\">\n                            \u9644\u8FD1\n                         </span>\n                    </div>     \n                </div>\n                ";
+                    marker.setLabel(new BMap.Label(templ, { offset: new BMap.Size(20, -10) }));
+                }, city);
+            });
+        };
+
+        _this.setInitPlace = function () {
+            var geolocation = new BMap.Geolocation();
+            var self = _this;
+            _this.map.enableScrollWheelZoom(true);
+            geolocation.getCurrentPosition(function (r) {
+                if (this.getStatus() == 0) {
+                    var city = r.address.city;
+
+                    self.analysis(r.point, city);
+                } else {
+                    alert("抱歉，定位失败");
+                }
+            }, { enableHighAccuracy: true });
+        };
+
         _this.state = {
             loaded: !!window.BMap
         };
         _this.map = null;
-        _this.src = "https://api.map.baidu.com/api?v=2.0&ak=" + props.AK;
+        _this.src = "https://api.map.baidu.com/api?v=3.0&ak=" + props.AK;
         _this.mapId = props.id || "allmap";
+        _this.currentPoint = null;
         return _this;
     }
 
@@ -195,8 +232,11 @@ var BDMap = function (_PureComponent) {
             };
             waitUntil(this.props).then(function (map) {
                 _this2.map = map;
-                _this2.init(_this2.props.coords);
-                _this2.forceUpdate();
+                if (!_this2.props.coords) {
+                    _this2.setInitPlace();
+                } else {
+                    _this2.init(_this2.props.coords);
+                }
 
                 _this2.props.callback && _this2.props.callback(map);
             });

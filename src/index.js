@@ -12,15 +12,16 @@ class BDMap extends PureComponent {
             loaded: !!window.BMap
         }
         this.map = null;
-        this.src = `https://api.map.baidu.com/api?v=2.0&ak=${props.AK}`;
+        this.src = `https://api.map.baidu.com/api?v=3.0&ak=${props.AK}`;
         this.mapId = props.id || "allmap";
+        this.currentPoint = null
     }
     //加载baidumap script
     loadJScript = () => {
         if (typeof BMap != 'undefined') {
             return;
         } else {
-            let bmapSrc = `https://api.map.baidu.com/api?v=2.0&ak=${this.props.AK}&callback=init`;
+            let bmapSrc = `https://api.map.baidu.com/api?v=3.0&ak=${this.props.AK}&callback=init`;
             let script = document.querySelector(`script[src='${bmapSrc}']`);
             if (!script) {
                 script = document.createElement("script");
@@ -112,6 +113,9 @@ class BDMap extends PureComponent {
             }
         }
     }
+    getCurrentPoint = () => {
+        return this.currentPoint;
+    }
 
     //智能搜索
     componentWillMount() {
@@ -119,6 +123,7 @@ class BDMap extends PureComponent {
 
     }
     componentDidMount() {
+
         const timeoutPromise = (timeout) => {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -139,9 +144,14 @@ class BDMap extends PureComponent {
         }
         waitUntil(this.props).then(map => {
             // console.log(`[+] bmap loaded`, map);
-            this.map = map
-            this.init(this.props.coords);
-            this.forceUpdate();
+            this.map = map;
+            if (!this.props.coords) {
+                this.setInitPlace()
+            } else {
+                this.init(this.props.coords);
+                // this.forceUpdate();
+            }
+
 
             this.props.callback && this.props.callback(map);
         });
@@ -171,6 +181,54 @@ class BDMap extends PureComponent {
 
             })
         })
+
+    }
+
+    //解析经纬度
+    analysis = (pt, city) => {
+        let geoc = new BMap.Geocoder();
+        geoc.getLocation(new BMap.Point(pt.lng, pt.lat), (res) => {
+            this.map.clearOverlays();
+            geoc.getPoint(res.address, (pt) => {
+                let point = new BMap.Point(pt.lng, pt.lat)
+                let marker = new BMap.Marker(point);
+                this.currentPoint = pt;
+                this.map.centerAndZoom(point, 12);
+                this.map.panTo(point);
+                this.map.addOverlay(marker);
+                let templ = `<div class="iploc-inf"> 
+                    <div class="ipLocTitle">
+                        <span class="normal">
+                            我在
+                        </span>
+                        <strong>
+                            ${res.address} 
+                         </strong>
+                         <span class="normal">
+                            附近
+                         </span>
+                    </div>     
+                </div>
+                `
+                marker.setLabel(new BMap.Label(templ, { offset: new BMap.Size(20, -10) }));
+
+            }, city);
+        });
+    }
+    //设置初始位置
+    setInitPlace = () => {
+        let geolocation = new BMap.Geolocation();
+        let self = this;
+        this.map.enableScrollWheelZoom(true);
+        geolocation.getCurrentPosition(function (r) {
+            if (this.getStatus() == 0) {
+                let { city } = r.address
+                self.analysis(r.point, city);
+            }
+            else {
+                alert("抱歉，定位失败");
+            }
+        }, { enableHighAccuracy: true })
 
     }
 
