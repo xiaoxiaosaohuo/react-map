@@ -5,6 +5,7 @@ const isString = function (str) {
     return Object.prototype.toString.call(str) === "[object String]";
 };
 
+
 class BDMap extends PureComponent {
     constructor(props) {
         super(props);
@@ -252,6 +253,7 @@ class BDMap extends PureComponent {
 
     }
 }
+
 
 BDMap.defaultProps = {
     center: {
